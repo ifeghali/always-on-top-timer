@@ -1,8 +1,11 @@
 import SwiftUI
 
 struct TimerView: View {
-    @State private var timeRemaining = 60 // 1 minute
+    @State private var timeRemaining = 60
     @State private var timerRunning = false
+    @State private var showSettings = false
+    @State private var initialTime = 60
+
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
     var body: some View {
@@ -10,19 +13,23 @@ struct TimerView: View {
             Text(timeString(from: timeRemaining))
                 .font(.largeTitle)
                 .padding()
-            
+
             HStack {
                 Button(timerRunning ? "Pause" : "Start") {
                     timerRunning.toggle()
                 }
                 Button("Reset") {
-                    timeRemaining = 60
+                    timeRemaining = initialTime
                     timerRunning = false
                 }
             }
+
+            Button("Set Time") {
+                showSettings = true
+            }
         }
-        .frame(width: 200, height: 150)
-        .background(Color.white.opacity(0.9))
+        .frame(width: 220, height: 180)
+        .background(Color.white.opacity(0.95))
         .cornerRadius(12)
         .shadow(radius: 10)
         .padding()
@@ -30,6 +37,12 @@ struct TimerView: View {
             if timerRunning && timeRemaining > 0 {
                 timeRemaining -= 1
             }
+        }
+        .sheet(isPresented: $showSettings) {
+            TimerSettingsView(initialTime: $initialTime, applyAction: {
+                timeRemaining = initialTime
+                showSettings = false
+            })
         }
     }
 
